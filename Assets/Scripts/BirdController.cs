@@ -103,7 +103,8 @@ public class BirdController : MonoBehaviour
     private void UpdateTilt()
     {
         // При подъёме нос смотрит вверх, при падении плавно опускается вниз.
-        float t = Mathf.InverseLerp(-maxFallSpeed * 0.6f, jumpForce * 0.5f, rb.linearVelocity.y);
+        float vy = rb.linearVelocity.y;
+        float t = Mathf.InverseLerp(-maxFallSpeed * 0.6f, jumpForce * 0.5f, vy);
         float targetAngle = Mathf.Lerp(maxTiltDown, maxTiltUp, t);
         float angle = Mathf.LerpAngle(visual.localEulerAngles.z, targetAngle,
             tiltSmoothing * Time.deltaTime);

@@ -28,6 +28,7 @@ public class Parallax : MonoBehaviour
 
         distance += speed * Time.deltaTime;
         // Mathf.Repeat возвращает остаток от деления: 0..tileWidth.
-        transform.position = startPosition + Vector3.left * Mathf.Repeat(distance, tileWidth);
+        float offset = Mathf.Repeat(distance, tileWidth);
+        transform.position = startPosition + Vector3.left * offset;
     }
 }

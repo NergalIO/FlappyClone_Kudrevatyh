@@ -29,7 +29,7 @@ public class Pipe : MonoBehaviour
     public void Launch(Vector2 position)
     {
         scored = false;
-        // Позиция меняется, пока объект выключен: Rigidbody2D создаётся уже в новой точке.
+        // Позиция меняется до включения объекта: Rigidbody2D появится уже в новой точке.
         transform.position = position;
         gameObject.SetActive(true);
     }
