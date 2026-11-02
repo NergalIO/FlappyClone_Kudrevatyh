@@ -99,20 +99,7 @@ def background():
                 break
         for x in range(w):
             px[x, y] = c + (255,)
-    d = ImageDraw.Draw(im)
-    rnd = random.Random(3)
-    for _ in range(90):
-        x, y = rnd.randrange(w), rnd.randrange(0, 900)
-        r = rnd.choice([1, 1, 2, 2, 3])
-        a = rnd.randrange(120, 255)
-        d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 245, 220, a))
-    # луна-серп: диск минус смещённый диск, через маску (без «заплатки» цветом неба)
-    mask = Image.new("L", (w, h), 0)
-    md = ImageDraw.Draw(mask)
-    md.ellipse([760, 260, 900, 400], fill=255)
-    md.ellipse([800, 240, 930, 380], fill=0)
-    im.paste((255, 236, 200, 255), (0, 0), mask)
-    d = ImageDraw.Draw(im)
+    # звёзд и луны на фоне нет: это отдельные неподвижные спрайты (самые дальние слои)
 
     # облака (с повтором через край)
     clouds = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -138,7 +125,51 @@ def background():
     return im
 
 
+# ---------- звёзды 1440x1000, прозрачный фон ----------
+# Неподвижный слой шириной 14,4 ед. (с запасом для широких экранов) у верхнего края:
+# объект Stars стоит в (0; 4,6), объект Moon — в (2,9; 6,6), т. е. в пикселе (1010; 300)
+# этого спрайта. Вокруг луны звёзд нет, иначе они просвечивали бы сквозь её тёмную часть.
+def stars():
+    w, h = 1440, 1000
+    moon_x, moon_y, moon_r = 1010, 300, 95
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    rnd = random.Random(3)
+    placed = 0
+    while placed < 120:
+        x, y = rnd.randrange(w), rnd.randrange(h)
+        if (x - moon_x) ** 2 + (y - moon_y) ** 2 < moon_r ** 2:
+            continue
+        r = rnd.choice([1, 1, 2, 2, 3])
+        # ниже звёзды тусклее: небо там светлее
+        a = int(rnd.randrange(160, 256) * (1 - 0.4 * y / h))
+        d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 245, 220, a))
+        placed += 1
+    return im
+
+
+# ---------- луна 256x256: серп с мягким свечением, прозрачный фон ----------
+def moon():
+    s = 256
+    c = s // 2
+    # серп: диск минус смещённый диск
+    mask = Image.new("L", (s * SS, s * SS), 0)
+    md = ImageDraw.Draw(mask)
+    md.ellipse([(c - 70) * SS, (c - 70) * SS, (c + 70) * SS, (c + 70) * SS], fill=255)
+    md.ellipse([(c - 30) * SS, (c - 85) * SS, (c + 100) * SS, (c + 45) * SS], fill=0)
+    mask = mask.resize((s, s), Image.LANCZOS)
+    # свечение — размытая копия самого серпа, поэтому «тёмная» часть диска не подсвечивается
+    glow_alpha = mask.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(12))
+    glow = Image.new("RGBA", (s, s), (255, 236, 200, 255))
+    glow.putalpha(glow_alpha.point(lambda v: v * 45 // 100))
+    crescent = Image.new("RGBA", (s, s), (255, 236, 200, 255))
+    crescent.putalpha(mask)
+    return Image.alpha_composite(glow, crescent)
+
+
 bird().save(out / "Bird.png")
+moon().save(out / "Moon.png")
+stars().save(out / "Stars.png")
 pipe().save(out / "Pipe.png")
 ground().save(out / "Ground.png")
 background().convert("RGB").save(out / "Background.png")

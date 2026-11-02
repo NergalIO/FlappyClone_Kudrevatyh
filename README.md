@@ -23,7 +23,7 @@
 | `BirdCollision.cs` | Bird | `OnCollisionEnter2D` с тегом `Pipe` или `Ground` → `rb.simulated = false` и `GameManager.GameOver()` |
 | `Pipe.cs` | префаб Pipe | Kinematic Rigidbody2D, движение влево через `rb.MovePosition`, выключение за левым краем; триггер ScoreZone даёт +1 очко (флаг `scored`) |
 | `PipeSpawner.cs` | PipeSpawner | `InvokeRepeating` каждые 1,5 с, случайная высота прохода, пул объектов вместо `Instantiate`/`Destroy` |
-| `Parallax.cs` | Background, GroundVisual | Бесконечная прокрутка Tiled-спрайта: фон 0,6 ед/с, земля 4 ед/с (как трубы) |
+| `Parallax.cs` | Background, GroundVisual | Бесконечная прокрутка Tiled-спрайта: фон 0,6 ед/с, земля 4 ед/с (как трубы); звёзды и луна — неподвижные спрайты (самый дальний план) |
 | `GameManager.cs` | GameManager | Синглтон: состояния Ready → Running → GameOver, счёт, рекорд в PlayerPrefs, перезапуск сцены |
 
 Префаб `Assets/Prefabs/Pipe.prefab`: корень с Kinematic Rigidbody2D и `Pipe.cs`, дочерние PipeTop и PipeBottom
